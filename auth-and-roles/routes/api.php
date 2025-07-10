@@ -1,8 +1,33 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
+use App\Http\Middleware\isAdmin;
+use App\Http\Middleware\IsUserAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+//PUBLIC ROUTES
+
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+
+
+//PRIVATE ROUTES
+Route::middleware([IsUserAuth::class])->group(function(){
+    Route::controller(AuthController::class)->group(function(){
+          Route::post('logout', 'logout');
+          Route::get('me', 'getUser' ); 
+    });
+
+    Route::get('products',[ProductController::class,'getPorducts']);
+
+    Route::middleware([isAdmin::class])->group(function(){
+          Route::controller(ProductController::class)->group(function(){
+                Route::post('products', 'addProduct');
+                Route::get('/products/{id}','getProductById');
+                Route::patch('/products/{id}','updateProductById');
+                Route::delete('/products/{id}', 'deleteProductById');
+          });  
+    });
+});

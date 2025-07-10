@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Product;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -64,11 +64,11 @@ class ProductController extends Controller
             return response()->json(['error'=> $validator->errors()],422);
         }
 
-        if($product->has('name')){
+        if($request->has('name')){
             $product->name= $request->name;
         }
 
-        if($product->has('price')){
+        if($request->has('price')){
             $product->price=$request->price;
         }
 
@@ -82,12 +82,12 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if(!$product){
-            return response()->json(['message'=> 'Product not found',404]);
+            return response()->json(['message'=> 'Product not found'],404);
         }
 
         $product->delete();
 
-
+        return response()->json(['message'=>'Product deleted successfully']);
     }
 }
 
